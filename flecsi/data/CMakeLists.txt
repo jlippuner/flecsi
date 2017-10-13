@@ -34,6 +34,7 @@ set(data_HEADERS
   storage.h
   storage_type.h
   future_handle.h
+  future.h
 )
 
 

@@ -3,8 +3,8 @@
  * All rights reserved.
  *~--------------------------------------------------------------------------~*/
 
-#ifndef flecsi_data_legion_future_policy_h
-#define flecsi_data_legion_future_policy_h
+#ifndef flecsi_data_mpi_future_policy_h
+#define flecsi_data_mpi_future_policy_h
 
 //----------------------------------------------------------------------------//
 //! @file
@@ -32,7 +32,7 @@ struct legion_future_policy_t
   template<
     typename T
   >
-  using future_type__ = Legion::Future;
+  using future_type__ = T;
 
 }; // class legion_data_policy_t
 

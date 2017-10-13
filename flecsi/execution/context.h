@@ -85,6 +85,18 @@ struct context__ : public CONTEXT_POLICY
   }; // struct field_info_t
 
   //--------------------------------------------------------------------------//
+  // Gathers info about registered futures.
+  //--------------------------------------------------------------------------//
+
+  struct future_info_t{
+    size_t size;
+    size_t namespace_hash;
+    size_t name_hash;
+    size_t versions;
+    future_id_t fid;
+  }; // struct future_info_t
+
+  //--------------------------------------------------------------------------//
   // Field info map for fields in SPMD task, key1 =
   // (data client hash, index space), key2 = fid
   //--------------------------------------------------------------------------//
@@ -492,6 +504,18 @@ struct context__ : public CONTEXT_POLICY
     field_info_vec_.emplace_back(std::move(field_info));
   }
 
+  /--------------------------------------------------------------------------//
+  //! Register future info for future id.
+  //!
+  //! @param future allocated field id
+  //! @param future_info field info as registered
+  //--------------------------------------------------------------------------//
+
+  void register_future_info(future_info_t& future_info){
+    future_info_vec_.emplace_back(std::move(future_info));
+  }
+
+
   //--------------------------------------------------------------------------//
   //! Return registered fields
   //--------------------------------------------------------------------------//
@@ -501,6 +525,17 @@ struct context__ : public CONTEXT_POLICY
   const
   {
     return field_info_vec_;
+  }
+
+  //--------------------------------------------------------------------------//
+  //! Return registered futures
+  //--------------------------------------------------------------------------//
+
+  const std::vector<future_info_t>&
+  registered_futures()
+  const
+  {
+    return future_info_vec_;
   }
   //--------------------------------------------------------------------------//
   //! Add an adjacency index space.
@@ -590,6 +625,21 @@ struct context__ : public CONTEXT_POLICY
     return fitr->second;
   }
 
+  //--------------------------------------------------------------------------//
+  //! Lookup registered future info from  namespace hash.
+  //! @param namespace_hash namespace/field name hash
+  //!-------------------------------------------------------------------------//
+
+  const field_info_t&
+  get_field_info(
+    size_t namespace_hash)
+  const
+  {
+//FIXME
+    return fitr->second;
+  }
+
+
   //------------------------------------------------------------------------//
   //! advance state of the execution flow
   //------------------------------------------------------------------------//
@@ -648,10 +698,22 @@ private:
   std::vector<field_info_t> field_info_vec_;
 
   //--------------------------------------------------------------------------//
+  // Future info vector for registered fields in TLT
+  //--------------------------------------------------------------------------//
+
+  std::vector<future_info_t> future_info_vec_;
+
+  //--------------------------------------------------------------------------//
   // Field info map for fields in SPMD task, key1 = (data client hash, index space), key2 = fid
   //--------------------------------------------------------------------------//
 
   field_info_map_t field_info_map_;
+
+  //--------------------------------------------------------------------------//
+  // Future info map for fields in SPMD task, key1 = future id
+  //--------------------------------------------------------------------------//
+
+  std::map<future_id_t, future_info_t> future_info_map_;
 
   //--------------------------------------------------------------------------//
   // Map of adjacency triples. key: adjacency index space

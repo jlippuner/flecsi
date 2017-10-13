@@ -34,6 +34,7 @@ namespace hash {
 
 constexpr size_t field_hash_version_bits = 3; 
 constexpr size_t field_max_versions = 1 << 3; 
+constexpr size_t future_max_versions = 1 << 3;
 
 //----------------------------------------------------------------------------//
 //! Hashing function for client registration.

@@ -83,7 +83,7 @@ using future_handle__ = future_handle_base__<
 
 } // namespace flecsi
 
-#endif // flecsi_data_handle_h
+#endif // flecsi_future_handle_h
 
 /*~-------------------------------------------------------------------------~-*
  * Formatting options for vim.
