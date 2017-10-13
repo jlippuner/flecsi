@@ -33,7 +33,9 @@ set(data_HEADERS
   field.h
   storage.h
   storage_type.h
+  future_handle.h
 )
+
 
 #------------------------------------------------------------------------------#
 # Add source files. Note that these will be "exported" to the parent
@@ -66,6 +68,7 @@ if(FLECSI_RUNTIME_MODEL STREQUAL "serial")
     serial/sparse.h
     serial/storage_policy.h
     serial/tuple.h
+    serial/future_policy.h
   )
 
   set(UNIT_POLICY SERIAL)
@@ -88,6 +91,7 @@ elseif(FLECSI_RUNTIME_MODEL STREQUAL "legion")
     legion/sparse.h
     legion/storage_policy.h
     legion/tuple.h
+    legion/future_policy.h
   )
 
   set(UNIT_POLICY LEGION)
@@ -104,6 +108,7 @@ elseif(FLECSI_RUNTIME_MODEL STREQUAL "mpi")
     mpi/dense.h
     mpi/sparse.h
     mpi/storage_policy.h
+    mpi/future_policy.h
   )
 
   set(data_SOURCES
