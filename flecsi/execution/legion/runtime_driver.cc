@@ -59,6 +59,7 @@ runtime_driver(
   context_.wait_on_mpi(ctx, runtime);
 
   using field_info_t = context_t::field_info_t;
+  using future_info_t = context_t::future_info_t;
 
   //--------------------------------------------------------------------------//
   // Invoke callbacks for entries in the client registry.
@@ -109,6 +110,10 @@ runtime_driver(
     context_.put_field_info(field_info);
     if (field_info.storage_type == global)
       number_of_global_fields++;
+  }
+  
+  for(const future_info_t& future_info : context_.registered_futures()){
+    context_.put_future_info(future_info);
   }
 
   if (number_of_global_fields > 0)

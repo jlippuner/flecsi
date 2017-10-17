@@ -94,6 +94,7 @@ struct context__ : public CONTEXT_POLICY
     size_t name_hash;
     size_t versions;
     future_id_t fid;
+    size_t key;
   }; // struct future_info_t
 
   //--------------------------------------------------------------------------//
@@ -103,6 +104,12 @@ struct context__ : public CONTEXT_POLICY
 
   using field_info_map_t =
     std::map<std::pair<size_t, size_t>, std::map<field_id_t, field_info_t>>;
+
+  //--------------------------------------------------------------------------//
+  // Future info map for futures in SPMD task , key = future id
+  //--------------------------------------------------------------------------/
+  using future_info_map_t = 
+    std::map< future_id_t, future_info_t>;
 
   //--------------------------------------------------------------------------//
   // Function interface.
@@ -504,7 +511,7 @@ struct context__ : public CONTEXT_POLICY
     field_info_vec_.emplace_back(std::move(field_info));
   }
 
-  /--------------------------------------------------------------------------//
+  //--------------------------------------------------------------------------//
   //! Register future info for future id.
   //!
   //! @param future allocated field id
@@ -626,19 +633,57 @@ struct context__ : public CONTEXT_POLICY
   }
 
   //--------------------------------------------------------------------------//
-  //! Lookup registered future info from  namespace hash.
+  //! Put future info for index space and field id.
+  //!
+  //! @param future_info future info as registered
+  //--------------------------------------------------------------------------//
+
+  void
+  put_future_info(
+    const future_info_t& future_info
+  )
+  {
+    future_id_t fid = future_info.fid;
+
+    future_info_map_.emplace(fid,future_info);
+
+    future_map_.insert({future_info.key, fid});
+  } // put_field_info
+
+
+  
+  //--------------------------------------------------------------------------//
+  //! Get registered future info map for read access.
+  //--------------------------------------------------------------------------//
+
+  const future_info_map_t&
+  future_info_map()
+  const
+  {
+    return future_info_map_;
+  } // future_info_map
+
+  //--------------------------------------------------------------------------//
+  //! Lookup registered future info from namespace hash.
   //! @param namespace_hash namespace/field name hash
   //!-------------------------------------------------------------------------//
 
-  const field_info_t&
-  get_field_info(
+  const future_info_t&
+  get_future_info(
     size_t namespace_hash)
   const
   {
-//FIXME
-    return fitr->second;
-  }
+    auto itr = future_map_.find(namespace_hash);
+    clog_assert(itr != future_map_.end(), "invalid field");
 
+    auto iitr = future_info_map_.find( itr->second);
+    clog_assert(iitr != future_info_map_.end(), "invalid fid");
+
+//    auto fitr = iitr->second.find(itr->second.second);
+//    clog_assert(fitr != iitr->second.end(), "invalid fid");
+
+    return iitr->second;
+  }
 
   //------------------------------------------------------------------------//
   //! advance state of the execution flow
@@ -710,10 +755,11 @@ private:
   field_info_map_t field_info_map_;
 
   //--------------------------------------------------------------------------//
-  // Future info map for fields in SPMD task, key1 = future id
+  // Future info map for fields in SPMD task, key  =future id
   //--------------------------------------------------------------------------//
 
-  std::map<future_id_t, future_info_t> future_info_map_;
+//  std::map< size_t, std::map<future_id_t, future_info_t> future_info_map_;
+    future_info_map_t future_info_map_;
 
   //--------------------------------------------------------------------------//
   // Map of adjacency triples. key: adjacency index space
@@ -728,6 +774,14 @@ private:
 
   std::map<std::pair<size_t, size_t>, std::pair<size_t, field_id_t>>
     field_map_;
+
+  //--------------------------------------------------------------------------//
+  // Future map, key1 =  name/namespace hash
+  // value =  future id
+  //--------------------------------------------------------------------------//
+
+  std::map<size_t, future_id_t>
+    future_map_;
 
   // key: virtual index space id
   // value: coloring indices (exclusive, shared, ghost)

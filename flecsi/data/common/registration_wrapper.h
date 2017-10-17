@@ -89,7 +89,7 @@ template<
   typename DATA_TYPE,
   size_t NAMESPACE_HASH,
   size_t NAME_HASH,
-  size_t VERSIONS,
+  size_t VERSIONS
 >
 struct future_registration_wrapper__
 { 
@@ -100,7 +100,8 @@ struct future_registration_wrapper__
   static
   void
   register_callback(
-    field_id_t fid
+    size_t key,
+    future_id_t fid
   ) 
   { 
     execution::context_t::future_info_t fi;
@@ -111,6 +112,7 @@ struct future_registration_wrapper__
     fi.versions = VERSIONS;
     
     fi.fid = fid;
+    fi.key = key;
     
     execution::context_t::instance().register_future_info(fi);
   } // register_callback

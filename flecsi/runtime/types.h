@@ -39,7 +39,8 @@
 
   using field_id_t = Legion::FieldID;
   using task_id_t = Legion::TaskID;
-  using future_id_t = Legion::FutureID;
+  //FIXME
+  using future_id_t = size_t;
 
   }
 
