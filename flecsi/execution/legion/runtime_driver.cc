@@ -92,7 +92,14 @@ runtime_driver(
     } // for
   } // for
 
+  auto & future_registry = 
+    flecsi::data::storage_t::instance().future_registry();
 
+  for(auto & c: future_registry) {
+ //   for(auto & f: c.second) {
+      c.second.second(c.first, c.second.first);
+  } // for
+//  } // for
 
   int num_colors;
   MPI_Comm_size(MPI_COMM_WORLD, &num_colors);

@@ -54,7 +54,7 @@ flecsi_register_task(writer, loc, single);
 flecsi_register_task(reader, loc, single);
 #endif
 
-flecsi_register_future( ns, pressure, double, 0);
+flecsi_register_future( ns, pressure, double, 1);
 
 namespace flecsi {
 namespace execution {
