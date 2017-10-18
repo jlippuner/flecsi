@@ -29,9 +29,6 @@ struct legion_future_handle_policy_t
   //! for the backend runtime.
   //--------------------------------------------------------------------------//
 
-  template<
-    typename T
-  >
   using future_type__ = Legion::Future;
 
 }; // class legion_data_policy_t

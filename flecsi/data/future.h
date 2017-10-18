@@ -104,7 +104,7 @@ struct future_data__
   >
   static
   decltype(auto)
-  get_future_handle()
+  get_future()
   {
     static_assert(VERSION < utils::hash::field_max_versions,
       "max field version exceeded");
@@ -121,13 +121,13 @@ struct future_data__
     f.fid = future_info.fid;
 
     //FIXME IRINA
-//    auto& fm = context.future_map()
+    auto& fm = context.future_data_map();
 
- //   f.future = fm[fid];
+    f.future = fm[f.fid];
 
   return f;
 
-  } // get_future_handle
+  } // get_future
 
 }; // struct future_data__
 

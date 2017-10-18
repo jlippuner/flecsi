@@ -596,6 +596,17 @@ struct legion_context_policy_t
     return index_space_data_map_;
   }
 
+   //------------------------------------------------------------------------//
+  //! Get future data.
+  //!
+  //------------------------------------------------------------------------//
+
+  auto&
+  future_data_map()
+  {
+    return future_data_map_;
+  }
+
   //--------------------------------------------------------------------------//
   //! Set DynamicCollective for <double> max reduction
   //!
@@ -760,6 +771,7 @@ private:
   //--------------------------------------------------------------------------//
 
   std::map<size_t, index_space_data_t> index_space_data_map_;
+  std::map<future_id_t, Legion::Future> future_data_map_;
   Legion::DynamicCollective max_reduction_;
   Legion::DynamicCollective min_reduction_;
 

@@ -14,9 +14,6 @@
 #include "flecsi/runtime/types.h"
 #include "flecsi/utils/common.h"
 #include "flecsi/data/future_handle.h"
-//#include "flecsi/utils/const_string.h"
-//#include "flecsi/utils/hash.h"
-//#include "flecsi/execution/context.h"
 
 //----------------------------------------------------------------------------//
 //! @file
@@ -165,33 +162,6 @@ struct storage__ : public STORAGE_POLICY {
     return future_registry_;
   } // field_registry
 
-#if 0
-  ///
-  //
-  ///
-  template<
-    typename DATA_TYPE,
-    size_t NAMESPACE,
-    size_t NAME,
-    size_t VERSION
-  >
-  static
-  future_handle_t<DATA_TYPE>
-  get_future_handle()
-  {
-    static_assert(VERSION < utils::hash::field_max_versions,
-      "max field version exceeded");
-
-    future_handle_t<DATA_TYPE> f;
-
-    auto& context = execution::context_t::instance();
-
-    auto& future_info =
-      context.get_future_info(
-        utils::hash::field_hash<NAMESPACE, NAME>(VERSION));
-
-  }
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 

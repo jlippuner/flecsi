@@ -71,7 +71,7 @@ void specialization_tlt_init(int argc, char ** argv) {
   ASSERT_EQ(context.execution_state(),
     static_cast<size_t>(SPECIALIZATION_TLT_INIT));
 
-//  auto future = flecsi_get_future(ns, pressure, double, 0);
+  auto future = flecsi_get_future(ns, pressure, double, 0);
 #if 0
   flecsi_execute_task(global_data_handle_dump, single, future);
   flecsi_execute_task(global_writer, single, future);
@@ -94,7 +94,7 @@ void driver(int argc, char ** argv) {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
 
-//   auto future = flecsi_get_future(ns, pressure, double, 0);
+   auto future = flecsi_get_future(ns, pressure, double, 0);
 #if 0
 //  flecsi_execute_task(task1, single, h, 128);
   flecsi_execute_task(data_handle_dump, single, future);

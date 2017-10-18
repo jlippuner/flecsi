@@ -112,8 +112,10 @@ runtime_driver(
       number_of_global_fields++;
   }
   
+  auto& future_dmap = context_.future_data_map();
   for(const future_info_t& future_info : context_.registered_futures()){
     context_.put_future_info(future_info);
+     future_dmap[future_info.fid] = Legion::Future();
   }
 
   if (number_of_global_fields > 0)

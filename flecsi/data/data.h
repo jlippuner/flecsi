@@ -252,19 +252,16 @@
     data_type>(client, version, ## __VA_ARGS__)
 
 //----------------------------------------------------------------------------//
-//! @def flecsi_register_field
+//! @def flecsi_register_future
 //!
-//! This macro registers field data with a data_client_t type. Data
-//! registration creates a data attribute for the given client type.
+//! This macro registers future data. 
 //! This call does not necessarily cause memory to be allocated. It's
 //! primary function is to describe the field data to the runtime.
 //! Memory allocation will likely be deferred.
 //!
-//! @param client_type  The \ref data_client_t type.
 //! @param nspace       The namespace to use to register the variable.
 //! @param name         The name of the data variable to register.
 //! @param data_type    The data type to store, e.g., double or my_type_t.
-//! @param storage_type The storage type for the data \ref storage_type_t.
 //! @param versions     The number of versions of the data to register. This
 //!                     parameter can be used to manage multiple data versions,
 //!                     e.g., for new and old state.
@@ -286,7 +283,35 @@
       >                                                                        \
       ({ EXPAND_AND_STRINGIFY(name) })
 
+//----------------------------------------------------------------------------//
+//! @def flecsi_get_future
+//!
+//! Access data with a data_client_t instance.
+//!
+//! @param client       The data_client_t instance with which to access
+//!                     the data.
+//! @param nspace       The namespace to use to access the variable.
+//! @param name         The name of the data variable to access.
+//! @param data_type    The data type to access, e.g., double or my_type_t.
+//! @param storage_type The storage type for the data \ref storage_type_t.
+//! @param version      The version number of the data to access. This
+//!                     parameter can be used to manage multiple data versions,
+//!                     e.g., for new and old state.
+//!
+//! @ingroup data
+//----------------------------------------------------------------------------//
 
+#define flecsi_get_future(nspace, name, data_type, version)                  \
+/* MACRO IMPLEMENTATION */                                                     \
+                                                                               \
+  /* Call the storage policy to get a handle to the data */                    \
+  flecsi::data::future_data_t::get_future<                                     \
+    data_type,                                                                 \
+    flecsi::utils::const_string_t{EXPAND_AND_STRINGIFY(nspace)}.hash(),        \
+    flecsi::utils::const_string_t{EXPAND_AND_STRINGIFY(name)}.hash(),          \
+    version                                                                    \
+  >                                                                            \
+  ()
 
 //----------------------------------------------------------------------------//
 //! @def flecsi_is_at
