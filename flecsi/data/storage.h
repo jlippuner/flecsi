@@ -13,7 +13,10 @@
 
 #include "flecsi/runtime/types.h"
 #include "flecsi/utils/common.h"
-
+#include "flecsi/data/future_handle.h"
+//#include "flecsi/utils/const_string.h"
+//#include "flecsi/utils/hash.h"
+//#include "flecsi/execution/context.h"
 
 //----------------------------------------------------------------------------//
 //! @file
@@ -44,10 +47,12 @@ struct storage__ : public STORAGE_POLICY {
 
   using registration_function_t = std::function<void(size_t)>;
   using field_registration_function_t = std::function<void(size_t, size_t)>;
+  using future_registration_function_t = std::function<void(size_t, size_t)>;
   using unique_fid_t = utils::unique_id_t<field_id_t, FLECSI_GENERATED_ID_MAX>;
   using field_value_t = std::pair<field_id_t, field_registration_function_t>;
   using client_value_t = std::pair<field_id_t, registration_function_t>;
-  using future_value_t = std::pair<future_id_t, registration_function_t>;
+  using future_value_t = std::pair<future_id_t,
+        future_registration_function_t>;
 
   using field_entry_t = std::unordered_map<size_t, field_value_t>;
   using client_entry_t = std::unordered_map<size_t, client_value_t>;
@@ -138,9 +143,9 @@ struct storage__ : public STORAGE_POLICY {
   //--------------------------------------------------------------------------//
 
   bool
-  register_field(
+  register_future(
     size_t key,
-    const field_registration_function_t & callback
+    const future_registration_function_t & callback
   )
   {
     if(future_registry_.find(key) != future_registry_.end()) {
@@ -151,7 +156,7 @@ struct storage__ : public STORAGE_POLICY {
       std::make_pair(unique_fid_t::instance().next(), callback);
 
     return true;
-  } // register_field
+  } // register_futured
 
   auto const &
   future_registry()
@@ -159,6 +164,34 @@ struct storage__ : public STORAGE_POLICY {
   {
     return future_registry_;
   } // field_registry
+
+#if 0
+  ///
+  //
+  ///
+  template<
+    typename DATA_TYPE,
+    size_t NAMESPACE,
+    size_t NAME,
+    size_t VERSION
+  >
+  static
+  future_handle_t<DATA_TYPE>
+  get_future_handle()
+  {
+    static_assert(VERSION < utils::hash::field_max_versions,
+      "max field version exceeded");
+
+    future_handle_t<DATA_TYPE> f;
+
+    auto& context = execution::context_t::instance();
+
+    auto& future_info =
+      context.get_future_info(
+        utils::hash::field_hash<NAMESPACE, NAME>(VERSION));
+
+  }
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 

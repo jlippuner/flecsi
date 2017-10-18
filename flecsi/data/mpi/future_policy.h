@@ -11,7 +11,6 @@
 //! @date Initial file creation: Jun 21, 2017
 //----------------------------------------------------------------------------//
 
-#include "flecsi/execution/legion/future.h "
 
 namespace flecsi {
 namespace data {
@@ -21,7 +20,7 @@ namespace data {
 //! runtime.
 //----------------------------------------------------------------------------//
 
-struct legion_future_policy_t
+struct mpi_future_handle_policy_t
 {
 
   //--------------------------------------------------------------------------//
@@ -39,7 +38,7 @@ struct legion_future_policy_t
 } // namespace data
 } // namespace flecsi
 
-#endif // flecsi_data_legion_future_policy_h
+#endif // flecsi_mpi_future_handle_policy_h
 
 /*~-------------------------------------------------------------------------~-*
  * Formatting options for vim.

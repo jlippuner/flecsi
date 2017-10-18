@@ -28,6 +28,7 @@ set(execution_HEADERS
   function.h
   kernel.h
   task.h
+  future.h
 )
 
 set(DRIVER_INITIALIZATION driver_initialization.cc)
@@ -192,6 +193,23 @@ cinch_add_unit(simple_task
   NOCI
   )
 
+#
+# Test basic task to test future_handle
+#
+cinch_add_unit(future_handle
+  SOURCES
+    test/future_handle.cc
+    ${DRIVER_INITIALIZATION}
+    ${RUNTIME_DRIVER}
+  DEFINES
+    -DFLECSI_ENABLE_SPECIALIZATION_TLT_INIT
+    -DCINCH_OVERRIDE_DEFAULT_INITIALIZATION_DRIVER
+  POLICY
+    ${UNIT_POLICY}
+  LIBRARIES
+    flecsi
+    ${CINCH_RUNTIME_LIBRARIES}
+  )
 
 if(ENABLE_COLORING AND ENABLE_PARMETIS)
 

@@ -3,8 +3,8 @@
  * All rights reserved.
  *~--------------------------------------------------------------------------~*/
 
-#ifndef flecsi_runtime_data_handle_policy_h
-#define flecsi_runtime_data_handle_policy_h
+#ifndef flecsi_runtime_future_handle_policy_h
+#define flecsi_runtime_future_handle_policy_h
 
 //----------------------------------------------------------------------------//
 // @file
@@ -23,7 +23,7 @@
 // Serial Policy
 #if FLECSI_RUNTIME_MODEL == FLECSI_RUNTIME_MODEL_serial
 
-  #include "flecsi/data/serial/future_handle_policy.h"
+  #include "flecsi/data/serial/future_policy.h"
 
   namespace flecsi {
 
@@ -34,18 +34,19 @@
 // Legion, MPI+Legion Policy
 #elif FLECSI_RUNTIME_MODEL == FLECSI_RUNTIME_MODEL_legion
 
-  #include "flecsi/data/legion/future_handle_policy.h"
+  #include "flecsi/data/legion/future_policy.h"
 
   namespace flecsi {
 
-  using FLECSI_RUNTIME_FUTURE_HANDLE_POLICY = legion_future_handle_policy_t;
+  using FLECSI_RUNTIME_FUTURE_HANDLE_POLICY =
+      data::legion_future_handle_policy_t;
   
   }
 
 // MPI Policy
 #elif FLECSI_RUNTIME_MODEL == FLECSI_RUNTIME_MODEL_mpi
 
-  #include "flecsi/data/mpi/future_handle_policy.h"
+  #include "flecsi/data/mpi/future_policy.h"
 
   namespace flecsi {
 

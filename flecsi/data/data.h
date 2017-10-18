@@ -13,6 +13,7 @@
 
 #include "flecsi/data/client.h"
 #include "flecsi/data/field.h"
+#include "flecsi/data/future.h"
 #include "flecsi/data/common/data_types.h"
 
 //----------------------------------------------------------------------------//
@@ -271,12 +272,12 @@
 //! @ingroup data
 //----------------------------------------------------------------------------//
 
-#define flecsi_register_future(nspace, name, data_type, versions, ...)         \                                        \
+#define flecsi_register_future(nspace, name, data_type, versions, ...)         \
 /* MACRO IMPLEMENTATION */                                                     \
                                                                                \
   /* Call the storage policy to register the data */                           \
   bool client_type ## _ ## nspace ## _ ## name ## _data_registered =           \
-    flecsi::data::field_data_t::register_future<                               \
+    flecsi::data::future_data_t::register_future<                              \
       data_type,                                                               \
       flecsi::utils::const_string_t{EXPAND_AND_STRINGIFY(nspace)}.hash(),      \
       flecsi::utils::const_string_t{EXPAND_AND_STRINGIFY(name)}.hash(),        \

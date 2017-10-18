@@ -12,6 +12,7 @@
 //----------------------------------------------------------------------------//
 
 namespace flecsi {
+namespace data {
 
 //----------------------------------------------------------------------------//
 //! The future_handle_base_t type provides an empty base type for compile-time
@@ -49,15 +50,17 @@ struct future_handle_base__ : public FUTURE_POLICY, public future_handle_base_t 
   //--------------------------------------------------------------------------//
 
   future_handle_base__(const future_handle_base__& b)
-  : FUTURE_POLICY(b){
+  : FUTURE_POLICY(b)
   {
-    future=b.future
+    future=b.future;
   }
- 
-   future_type_ future;
+   using typename FUTURE_POLICY::future_type__; 
+   future_type__ future;
+   future_id_t fid;  
 
 };
 
+} // namespace data
 } // namespace flecsi
 
 #include "flecsi/runtime/flecsi_runtime_future_handle_policy.h"
@@ -74,12 +77,17 @@ namespace flecsi {
 //----------------------------------------------------------------------------//
 
 template<
-  typename T,
+  typename T
 >
-using future_handle__ = future_handle_base__<
+using future_handle__ = data::future_handle_base__<
   T,
   FLECSI_RUNTIME_FUTURE_HANDLE_POLICY
 >;
+
+template<
+  typename T
+>
+using future_handle_t = future_handle__<T>;
 
 } // namespace flecsi
 

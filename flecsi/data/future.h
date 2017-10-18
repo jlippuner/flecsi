@@ -3,8 +3,8 @@
  * All rights reserved.
  *~--------------------------------------------------------------------------~*/
 
-#ifndef flecsi_data_field_h
-#define flecsi_data_field_h
+#ifndef flecsi_data_future_h
+#define flecsi_data_future_h
 
 //----------------------------------------------------------------------------//
 //! @file
@@ -12,6 +12,7 @@
 //----------------------------------------------------------------------------//
 
 #include "flecsi/data/common/registration_wrapper.h"
+#include "flecsi/runtime/flecsi_runtime_future_handle_policy.h"
 #include "flecsi/data/storage.h"
 #include "flecsi/utils/hash.h"
 
@@ -49,7 +50,7 @@ struct future_data__
     typename DATA_TYPE,
     size_t NAMESPACE_HASH,
     size_t NAME_HASH,
-    size_t VERSIONS,
+    size_t VERSIONS
   >
   static
   bool
@@ -64,7 +65,7 @@ struct future_data__
       DATA_TYPE,
       NAMESPACE_HASH,
       NAME_HASH,
-      VERSIONS,
+      VERSIONS
     >;
 
 
@@ -99,27 +100,34 @@ struct future_data__
     typename DATA_TYPE,
     size_t NAMESPACE_HASH,
     size_t NAME_HASH,
-    size_t VERSION = 0,
-    size_t PERMISSIONS
+    size_t VERSION = 0
   >
   static
   decltype(auto)
-  get_future_handle(
-  )
+  get_future_handle()
   {
     static_assert(VERSION < utils::hash::field_max_versions,
       "max field version exceeded");
 
     const size_t key =
         utils::hash::field_hash<NAMESPACE_HASH, NAME_HASH>(VERSION);    
+ 
+    future_handle_t<DATA_TYPE> f;
 
-//FIXME
-    if(!storage_t::instance().get_future( key ) {
-        return false;
-      } // if
-    
+    auto& context = execution::context_t::instance();
+ 
+    auto& future_info =  context.get_future_info(key);
+
+    f.fid = future_info.fid;
+
+    //FIXME IRINA
+//    auto& fm = context.future_map()
+
+ //   f.future = fm[fid];
+
+  return f;
+
   } // get_future_handle
-
 
 }; // struct future_data__
 
@@ -130,12 +138,12 @@ struct future_data__
 // This include file defines the FLECSI_RUNTIME_DATA_POLICY used below.
 //----------------------------------------------------------------------------//
 
-#include "flecsi/runtime/flecsi_runtime_future_policy.h"
+#include "flecsi/runtime/flecsi_runtime_future_handle_policy.h"
 
 namespace flecsi {
 namespace data {
 
-using future_data_t = future_data__<FLECSI_RUNTIME_FUTURE_POLICY>;
+using future_data_t = future_data__<FLECSI_RUNTIME_FUTURE_HANDLE_POLICY>;
 
 } // namespace data
 } // namespace flecsi

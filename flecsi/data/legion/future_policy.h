@@ -11,7 +11,7 @@
 //! @date Initial file creation: Jun 21, 2017
 //----------------------------------------------------------------------------//
 
-#include "flecsi/execution/legion/future.h "
+//#include "flecsi/execution/future.h "
 
 namespace flecsi {
 namespace data {
@@ -21,7 +21,7 @@ namespace data {
 //! runtime.
 //----------------------------------------------------------------------------//
 
-struct legion_future_policy_t
+struct legion_future_handle_policy_t
 {
 
   //--------------------------------------------------------------------------//
