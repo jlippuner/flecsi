@@ -301,7 +301,7 @@
 //! @ingroup data
 //----------------------------------------------------------------------------//
 
-#define flecsi_get_future(nspace, name, data_type, version)                  \
+#define flecsi_get_future_handle(nspace, name, data_type, version)                  \
 /* MACRO IMPLEMENTATION */                                                     \
                                                                                \
   /* Call the storage policy to get a handle to the data */                    \

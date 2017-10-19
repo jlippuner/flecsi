@@ -26,34 +26,29 @@ clog_register_tag(coloring);
 
 
 template<typename T>
-using future_handle_t = future_handle_t<T>;
+using handle_t = future_handle_t<T>;
 
-#if 0
-void task1(future_handle_t<double> x, double y) {
-  //np(y);
-} // task1
 
-void future_handle_dump(future_handle_t<double> x) {
-  clog(info) << "future_handle =  " << x << std::endl;
+void future_handle_dump(handle_t<double> x) {
+//  clog(info) << "future_handle =  " << x << std::endl;
 }
 
-void writer(future_handle_t<double> x) {
+
+double writer( int something) {
   clog(info) << "writer write" << std::endl;
-  x = 3.14;
+  double x = 3.14;
+  return x;
 }
 
 void reader(future_handle_t<double> x) {
   clog(info) << "reader read: " << std::endl;
-  ASSERT_EQ(x, static_cast<double>(3.14));
+//  ASSERT_EQ(x, static_cast<double>(3.14));
   
 }
 
-flecsi_register_task(task1, loc, single);
-flecsi_register_task(future_handle_dump, loc, single);
 flecsi_register_task(writer, loc, single);
 flecsi_register_task(reader, loc, single);
-#endif
-
+flecsi_register_task(future_handle_dump, loc, single);
 flecsi_register_future( ns, pressure, double, 1);
 
 namespace flecsi {
@@ -71,11 +66,11 @@ void specialization_tlt_init(int argc, char ** argv) {
   ASSERT_EQ(context.execution_state(),
     static_cast<size_t>(SPECIALIZATION_TLT_INIT));
 
-  auto future = flecsi_get_future(ns, pressure, double, 0);
+  auto future = flecsi_get_future_handle(ns, pressure, double, 0);
+  flecsi_execute_task(future_handle_dump, single, future);
 #if 0
-  flecsi_execute_task(global_data_handle_dump, single, future);
-  flecsi_execute_task(global_writer, single, future);
-  flecsi_execute_task(global_reader, single, future);
+  future = flecsi_execute_task(writer, single, 0);
+  flecsi_execute_task(reader, single, future);
 #endif
 } // specialization_tlt_init
 
@@ -94,9 +89,8 @@ void driver(int argc, char ** argv) {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
 
-   auto future = flecsi_get_future(ns, pressure, double, 0);
+   auto future = flecsi_get_future_handle(ns, pressure, double, 0);
 #if 0
-//  flecsi_execute_task(task1, single, h, 128);
   flecsi_execute_task(data_handle_dump, single, future);
   flecsi_execute_task(exclusive_writer, single, future);
   flecsi_execute_task(exclusive_reader, single, future);

@@ -27,6 +27,8 @@
 #include "flecsi/execution/common/execution_state.h"
 #include "flecsi/data/common/privilege.h"
 #include "flecsi/data/data_client_handle.h"
+#include "flecsi/data/future_handle.h"
+
 
 namespace flecsi {
 namespace execution {
@@ -217,6 +219,21 @@ namespace execution {
       }
     } // handle
 
+    ///
+    // Initialize arguments for future handle
+    ///
+    template<
+      typename T
+    >
+    void
+    handle(
+      future_handle__<T> & h
+    )
+    {
+     //FIXME
+     //if PERMISSIONS=READ_ONLY or READ_wRITE add future to futures
+    }
+
     //-----------------------------------------------------------------------//
     // If this is not a data handle, then simply skip it.
     //-----------------------------------------------------------------------//
@@ -235,6 +252,7 @@ namespace execution {
     Legion::Runtime * runtime;
     Legion::Context & context;
     std::vector<Legion::RegionRequirement> region_reqs;
+    std::vector<Legion::Future> futures;
 
   }; // struct init_args_t
 
