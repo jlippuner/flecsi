@@ -346,11 +346,16 @@ runtime_driver(
     args_serializers[color].serialize(&number_of_color_fields, sizeof(size_t));
    
 
-    // #2 serialize field info
+    // #2 serialize field info and future info
     size_t num_fields = context_.registered_fields().size();
     args_serializers[color].serialize(&num_fields, sizeof(size_t));
     args_serializers[color].serialize(
       &context_.registered_fields()[0], num_fields * sizeof(field_info_t));
+
+    size_t num_futures = context_.registered_futures().size();
+    args_serializers[color].serialize(&num_futures, sizeof(size_t));
+    args_serializers[color].serialize(
+      &context_.registered_futures()[0], num_futures * sizeof(future_info_t));
 
     // #3 serialize pbarriers_as_owner
     args_serializers[color].serialize(&pbarriers_as_owner[0], 
@@ -624,7 +629,7 @@ spmd_task(
       "fewer regions than data handles");
   }//scope
 
-  // #2 deserialize field info
+  // #2 deserialize field info and future info
   size_t num_fields;
   args_deserializer.deserialize(&num_fields, sizeof(size_t));
 
@@ -641,6 +646,24 @@ spmd_task(
       context_.put_field_info(fi);
     }//end for i
   }//if
+
+  size_t num_futures;
+  args_deserializer.deserialize(&num_futures, sizeof(size_t));
+
+  using future_info_t = context_t::future_info_t;
+  auto future_info_buf = new future_info_t [num_futures];
+
+  args_deserializer.deserialize(future_info_buf,
+                                sizeof(future_info_t) * num_futures);
+
+  // add future_info into the context (map between name, hash and field)
+  if( (context_.future_info_map()).size()==0){
+    for(size_t i = 0; i < num_futures; ++i){
+      future_info_t& fi = future_info_buf[i];
+      context_.put_future_info(fi);
+    }//end for i
+  }//if
+
 
   //if there is no information about fields in the context, add it there
   if (context_.registered_fields().size()==0)
