@@ -31,29 +31,43 @@ template<class E, size_t DM=0>
 class structured_index_space{
 public:
   using id_t        = typename std::remove_pointer<E>::type::id_t;
-  using id_vector_t = typename std::conditional<DM==0, 
-                               std::vector<size_t>, 
+  using id_vector_t = typename std::conditional<DM==0,
+                               std::vector<size_t>,
                                std::array<size_t,DM>>::type;
   using id_array_t  = std::vector<std::vector<id_t>>;
   using qtable_t    = typename query::QueryTable<DM,DM+1,DM,DM+1>;
 
  /******************************************************************************
- *               Constructors/Destructors/Initializations                      *    
- * ****************************************************************************/ 
-  void init(bool primary, const id_vector_t &lbnds, const id_vector_t &ubnds, 
+ *               Constructors/Destructors/Initializations                      *
+ * ****************************************************************************/
+  void init(bool primary, const id_vector_t &lbnds, const id_vector_t &ubnds,
             id_array_t &mubnds)
   {
     assert(lbnds.size() == ubnds.size());
-    // this check is to ensure that the primary IS doesn't have 
+    // this check is to ensure that the primary IS doesn't have
     // multiple boxes
-    if (primary) 
+    if (primary)
       assert (mubnds.size()==1);
 
-    dim_ = lbnds.size();
+    dim_ = lbnds.size(); // isn't this always DM? why use dim_?
     offset_ = 0;
     primary_ = primary;
     num_boxes_ = mubnds.size();
     std::vector<size_t> ubnds_new, lbnds_new;
+
+//    std::cout << "dim = " << dim_ << std::endl;
+//    std::cout << "primary = " << primary_ << std::endl;
+//    std::cout << "num_boxes = " << num_boxes_ << std::endl;
+//
+//    std::cout << "mubnds = { " << std::endl;
+//    for (size_t i = 0; i < num_boxes_; i++) {
+//      std::cout << "           { ";
+//      for (size_t j = 0; j < mubnds[i].size(); ++j) {
+//        std::cout << mubnds[i][j] << ", ";
+//      }
+//      std::cout << " }," << std::endl;
+//    }
+//    std::cout << "         }" << std::endl;
 
     for (size_t i = 0; i < num_boxes_; i++)
     {
@@ -88,7 +102,7 @@ public:
       for (size_t j = 0 ; j < dim_; j++)
         std::cout<<box_lowbnds_[i][j]<<", ";
       std::cout<<"}"<<std::endl;
-    
+
       std::cout<<" ----Box-upper-bnds = { ";
       for (size_t j = 0 ; j < dim_; j++)
         std::cout<<box_upbnds_[i][j]<<", ";
@@ -97,7 +111,7 @@ public:
    std::cout<<"Primary == "<<primary<<std::endl;
    */
   }
-   
+
   //default constructor
   structured_index_space(){};
 
@@ -105,11 +119,11 @@ public:
   ~structured_index_space(){};
 
  /******************************************************************************
- *                              Basic Iterators                                *    
- * ****************************************************************************/ 
+ *                              Basic Iterators                                *
+ * ****************************************************************************/
  template<typename S=E>
  auto iterate()
- { 
+ {
    return iterator_whole_t<S>(offset_, size_);
  }
 
@@ -127,7 +141,7 @@ public:
             current_ent = new S;
             current_ent->set_id(current,0);
           };
-    
+
           ~iterator_t()
            {
              delete current_ent;
@@ -143,12 +157,12 @@ public:
           bool operator!=(const iterator_t& rhs)
           {
            return (this->current != rhs.current);
-          } 
-          
+          }
+
           bool operator==(const iterator_t& rhs)
           {
            return (this->current == rhs.current);
-          } 
+          }
 
           S& operator*()
           {
@@ -159,7 +173,7 @@ public:
         id_t current;
         S* current_ent;
      };
-    
+
     auto begin()
     {
       return iterator_t(start_);
@@ -168,17 +182,17 @@ public:
     auto end()
     {
       return iterator_t(start_+sz_);
-    }; 
- 
+    };
+
    private:
     id_t start_;
-    id_t sz_; 
+    id_t sz_;
  };
-  
+
 
  /******************************************************************************
- *                         Query-Specific Iterators                            *    
- * ****************************************************************************/ 
+ *                         Query-Specific Iterators                            *
+ * ****************************************************************************/
   template <size_t TD, class S>
   auto traverse(size_t FD, size_t ID, id_vector_t &indices, qtable_t *qt)
   {
@@ -188,19 +202,19 @@ public:
   template<size_t TD1, class S1, class E1=E, size_t DM1 = DM>
   class traversal{
     public:
-    
+
     //Constructor//Destructor
     traversal(
       structured_index_space<E1, DM1> *is,
-      id_t MD1, 
-      id_t FD1, 
-      id_t ID1, 
+      id_t MD1,
+      id_t FD1,
+      id_t ID1,
       id_vector_t &indices,
       qtable_t *qt1):
-      is_{is}, 
-      MD1_{MD1}, 
-      FD1_{FD1}, 
-      ID1_{ID1}, 
+      is_{is},
+      MD1_{MD1},
+      FD1_{FD1},
+      ID1_{ID1},
       indices_{indices},
       qt1_{qt1}
     {
@@ -212,38 +226,38 @@ public:
     };
 
     ~traversal(){};
- 
+
     //Iterator
     template<class S2 = S1, class E2 = E1, size_t DM2 = DM1>
     class iterator_t{
      public:
       iterator_t(
         structured_index_space<E2,DM2> *is,
-        qtable_t *qt2, 
-        id_t MD2, 
-        id_t FD2, 
-        id_t ID2, 
+        qtable_t *qt2,
+        id_t MD2,
+        id_t FD2,
+        id_t ID2,
         id_t TD2,
-        id_vector_t &indices, 
+        id_vector_t &indices,
         id_t index,
-        id_t end_idx, 
+        id_t end_idx,
         bool forward):
-        is_{is}, 
+        is_{is},
         qt2_{qt2},
-        MD2_{MD2}, 
-        FD2_{FD2}, 
+        MD2_{MD2},
+        FD2_{FD2},
         ID2_{ID2},
-        TD2_{TD2}, 
-        indices_{indices}, 
-        valid_idx_{index}, 
+        TD2_{TD2},
+        indices_{indices},
+        valid_idx_{index},
         end_idx_{end_idx},
         forward_{forward}
       {
-        bool valid = isvalid(valid_idx_); 
+        bool valid = isvalid(valid_idx_);
         while (!valid)
         {
-          if (forward) 
-             valid_idx_ += 1; 
+          if (forward)
+             valid_idx_ += 1;
           else
              valid_idx_ -= 1;
           valid = isvalid(valid_idx_);
@@ -255,9 +269,9 @@ public:
            end_idx_ -= 1;
            valid_end = isvalid(end_idx_ - 1);
         }
-          
+
         id_t entid = compute_id(valid_idx_);
-        valid_ent_ = new S2; 
+        valid_ent_ = new S2;
         valid_ent_->set_id(entid,0);
       };
 
@@ -268,18 +282,19 @@ public:
 
       iterator_t& operator++()
       {
+        // don't we need to do something different here if forward_ == false?
         valid_idx_ += 1;
         if(valid_idx_ != end_idx_){
-          bool valid = isvalid(valid_idx_); 
+          bool valid = isvalid(valid_idx_);
           while ((!valid) && (valid_idx_ != end_idx_))
           {
             valid_idx_ += 1;
-            //if (valid_idx_ != end_idx_) 
+            //if (valid_idx_ != end_idx_)
                valid = isvalid(valid_idx_);
             //else
               // break;
           }
-         
+
           if (valid_idx_ != end_idx_)
           {
             id_t entid = compute_id(valid_idx_);
@@ -291,7 +306,7 @@ public:
 
       bool operator!=(const iterator_t& rhs)
       {
-         return (this->valid_idx_ != rhs.end_idx_);
+         return (this->valid_idx_ != rhs.end_idx_); // why end_idx here and valid_idx below?
       };
 
       bool operator==(const iterator_t& rhs)
@@ -311,43 +326,43 @@ public:
 
       bool isvalid(id_t vindex)
       {
-        bool valid = true; 
+        bool valid = true;
     //    auto qt = query::qtable(MD2_);
-        
-        // Get box id 
+
+        // Get box id
         id_t bid = qt2_->entry[FD2_][ID2_][TD2_].adjacencies[vindex].box_id;
- 
+
         // Get number of directions to check
         id_t nchk    = qt2_->entry[FD2_][ID2_][TD2_].adjacencies[vindex].numchk;
-        auto dir     = qt2_->entry[FD2_][ID2_][TD2_].adjacencies[vindex].dir; 
+        auto dir     = qt2_->entry[FD2_][ID2_][TD2_].adjacencies[vindex].dir;
         auto chk_bnd = qt2_->entry[FD2_][ID2_][TD2_].adjacencies[vindex].bnd_chk;
- 
+
         for (id_t i = 0; i < nchk; i++)
         {
           if (chk_bnd[i])
             valid = valid && (indices_[dir[i]] <= (is_->max(bid, dir[i])));
-          else 
-            valid = valid && (indices_[dir[i]] >= (is_->min(bid, dir[i]))+1);  
+          else
+            valid = valid && (indices_[dir[i]] >= (is_->min(bid, dir[i]))+1);
         }
-   
+
         return valid;
       }
 
       auto compute_id(id_t vindex)
-      { 
+      {
         id_vector_t adj;
         //auto qt = query::qtable(MD2_);
         id_t bid = qt2_->entry[FD2_][ID2_][TD2_].adjacencies[vindex].box_id;
         auto offset = qt2_->entry[FD2_][ID2_][TD2_].adjacencies[vindex].offset;
         for (id_t i = 0; i < MD2_; i++)
-          adj[i] = indices_[i]+offset[i];     
+          adj[i] = indices_[i]+offset[i];
 
         return is_->get_global_offset_from_indices(bid,adj);
       }
 
      private:
        structured_index_space<E2,DM2> *is_;
-       qtable_t *qt2_; 
+       qtable_t *qt2_;
        id_t MD2_, FD2_, ID2_, TD2_;
        id_vector_t indices_;
        id_t valid_idx_;
@@ -358,43 +373,43 @@ public:
 
     auto begin()
     {
-      return iterator_t<S1, E1, DM1>(is_, qt1_, MD1_, FD1_, ID1_, TD1_, 
-                                     indices_, start_, finish_, true); 
+      return iterator_t<S1, E1, DM1>(is_, qt1_, MD1_, FD1_, ID1_, TD1_,
+                                     indices_, start_, finish_, true);
     };
 
     auto end()
     {
-      return iterator_t<S1, E1, DM1>(is_, qt1_, MD1_, FD1_, ID1_, TD1_, 
+      return iterator_t<S1, E1, DM1>(is_, qt1_, MD1_, FD1_, ID1_, TD1_,
                                      indices_, finish_-1, finish_, false);
     };
 
-    private: 
-       structured_index_space<E1, DM1> *is_; 
+    private:
+       structured_index_space<E1, DM1> *is_;
        id_t MD1_, FD1_, ID1_, TD1_;
        id_vector_t indices_;
        id_t start_, finish_;
-       qtable_t *qt1_; 
+       qtable_t *qt1_;
   };
 
  /******************************************************************************
- *          Offset --> Indices & Indices --> Offset Routines                   *    
- * ****************************************************************************/ 
+ *          Offset --> Indices & Indices --> Offset Routines                   *
+ * ****************************************************************************/
 
-   // Return the global offset id w.r.t the box id B  
+   // Return the global offset id w.r.t the box id B
   template<size_t B>
   id_t get_global_offset_from_indices(id_vector_t &idv)
   {
     id_t lval = get_local_offset_from_indices<B>(idv);
-    
+
     for (id_t i = 1; i < B; i++)
       lval += box_size_[i-1];
     return lval;
   }
-  
+
   id_t get_global_offset_from_indices(id_t B, id_vector_t &idv)
   {
     id_t lval = get_local_offset_from_indices(B, idv);
-    
+
     for (id_t i = 1; i <= B; i++)
       lval += box_size_[i-1];
     return lval;
@@ -402,7 +417,7 @@ public:
 
   // Return the local offset id w.r.t the box id B
   template<size_t B>
-  id_t get_local_offset_from_indices(id_vector_t &idv) 
+  id_t get_local_offset_from_indices(id_vector_t &idv)
   {
     //add range check for idv to make sure it lies within the bounds
     size_t value =0;
@@ -420,8 +435,8 @@ public:
 
     return value;
   }
-  
-  id_t get_local_offset_from_indices(size_t B, id_vector_t &idv) 
+
+  id_t get_local_offset_from_indices(size_t B, id_vector_t &idv)
   {
     //add range check for idv to make sure it lies within the bounds
     size_t value =0;
@@ -447,7 +462,7 @@ public:
     auto box_id = 0;
     if (num_boxes_ > 0)
        box_id = find_box_id(offset);
- 
+
     size_t rem = offset;
     for (size_t i=0; i<box_id; ++i)
       rem -= box_size_[i];
@@ -457,16 +472,16 @@ public:
 
     for (size_t i=0; i<dim_; ++i)
     {
-      factor = 1; 
+      factor = 1;
       for (size_t j=0; j<dim_-i-1; ++j)
       {
-       factor *= box_upbnds_[box_id][j]-box_lowbnds_[box_id][j] + 1; 
+       factor *= box_upbnds_[box_id][j]-box_lowbnds_[box_id][j] + 1;
       }
       value = rem/factor;
       id[dim_-i-1] = value;
       rem -= value*factor;
     }
- 
+
    return id;
   }
 
@@ -504,7 +519,7 @@ public:
   }
 
   // Check if input index is between bounds along direction
-  // D of box B. 
+  // D of box B.
   template<size_t B, size_t D>
   bool check_index_limits(size_t index)
   {
@@ -524,7 +539,7 @@ public:
     auto val = box_upbnds_[B][D];
     return val;
   }
-  
+
   auto max(size_t B, size_t D)
   {
     auto val = box_upbnds_[B][D];
@@ -545,14 +560,14 @@ public:
     auto val = box_lowbnds_[B][D];
     return val;
   }
-  size_t size() const 
+  size_t size() const
   {
     return size_;
   };
- 
+
  private:
-   bool primary_;               // primary_ is set to true only for the IS of 
-                                // highest-dimensional entity 
+   bool primary_;               // primary_ is set to true only for the IS of
+                                // highest-dimensional entity
    id_t dim_;                   // dimension of mesh this IS stores
    id_t offset_;                // starting offset for the entire IS
    id_t size_;                  // size of the entire IS

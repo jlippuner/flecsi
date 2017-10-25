@@ -31,6 +31,9 @@ set(topology_SOURCES
   PARENT_SCOPE
 )
 
+add_executable(structred_mesh_test test/structured_mesh_test.cc)
+target_link_libraries(structred_mesh_test flecsi)
+
 #------------------------------------------------------------------------------#
 # Mesh unit tests.
 #------------------------------------------------------------------------------#
