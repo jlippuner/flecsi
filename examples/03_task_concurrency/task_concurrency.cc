@@ -196,10 +196,10 @@ flecsi_register_task(compute_c, loc, single);
 //----------------------------------------------------------------------------//
 
 void global_task(mesh<ro> m, scalar_int<ro> glob) {
-  printf("Executing global task (glob = %i)\n", glob);
+//  printf("Executing global task (glob = %i)\n", glob);
   std::this_thread::sleep_for(std::chrono::milliseconds(50));
   //++glob.data();
-  printf("Global task done (glob = %i)\n", glob);
+//  printf("Global task done (glob = %i)\n", glob);
 } // global_task
 
 flecsi_register_task(global_task, loc, single);
@@ -263,9 +263,10 @@ void driver(int argc, char ** argv) {
   auto globh = flecsi_get_handle(mh, data, glob, int, global, 0);
 
   flecsi_execute_task(compute_a, single, mh, ah);
+  flecsi_execute_task(init_c, single, mh, ch);
   flecsi_execute_task(compute_b, single, mh, bh);
 
-  flecsi_execute_task(init_c, single, mh, ch);
+
   flecsi_execute_task(compute_c, single, mh, ah, bh, ch);
 
   flecsi_execute_task(global_task, single, mh, globh);
