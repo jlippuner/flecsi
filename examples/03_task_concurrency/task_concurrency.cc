@@ -31,28 +31,17 @@ template<
 >
 using mesh = data_client_handle__<mesh_t, PS>;
 
-#if FLECSI_RUNTIME_MODEL == FLECSI_RUNTIME_MODEL_legion
 template<
   size_t EP,
   size_t SP,
   size_t GP
 >
-using field = data::legion::dense_handle_t<double, EP, SP, GP>;
+using field = dense_accessor<double, EP, SP, GP>;
 
-template<size_t PS>
-using scalar_int = data::legion::global_handle_t<int, PS>;
-
-#elif FLECSI_RUNTIME_MODEL == FLECSI_RUNTIME_MODEL_mpi
 template<
-  size_t EP,
-  size_t SP,
-  size_t GP
+  size_t PS
 >
-using field = data::mpi::dense_handle_t<double, EP, SP, GP>;
-
-template<size_t PS>
-using scalar_int = data::mpi::global_handle_t<int, PS>;
-#endif
+using scalar_int = global_accessor<int, PS>;
 
 
 //----------------------------------------------------------------------------//
