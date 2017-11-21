@@ -177,7 +177,6 @@ cinch_add_unit(simple_task
   NOCI
   )
 
-
 if(ENABLE_COLORING AND ENABLE_PARMETIS)
 
     cinch_add_devel_target(execution_structure
@@ -193,6 +192,8 @@ if(ENABLE_COLORING AND ENABLE_PARMETIS)
         flecsi
         ${CINCH_RUNTIME_LIBRARIES}
         ${COLORING_LIBRARIES}
+        rt
+        pthread
       DEFINES
         -DFLECSI_ENABLE_SPECIALIZATION_TLT_INIT
         -DFLECSI_ENABLE_SPECIALIZATION_SPMD_INIT
@@ -214,6 +215,8 @@ if(ENABLE_COLORING AND ENABLE_PARMETIS)
         flecsi
         ${CINCH_RUNTIME_LIBRARIES}
         ${COLORING_LIBRARIES}
+        rt
+        pthread
       DEFINES
         -DFLECSI_ENABLE_SPECIALIZATION_TLT_INIT
         -DFLECSI_ENABLE_SPECIALIZATION_SPMD_INIT
