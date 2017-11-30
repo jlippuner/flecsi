@@ -5,6 +5,7 @@
 
 #include "flecsi/execution/context.h"
 #include "flecsi/execution/execution.h"
+#include "flecsi/data/sparse_accessor.h"
 #include "flecsi/supplemental/coloring/add_colorings.h"
 #include "flecsi/supplemental/mesh/test_mesh_2d.h"
 
@@ -37,6 +38,13 @@ template<
   size_t GP
 >
 using field = dense_accessor<double, EP, SP, GP>;
+
+template<
+  size_t EP,
+  size_t SP,
+  size_t GP
+>
+using sparse_field = sparse_accessor<double, EP, SP, GP>;
 
 template<
   size_t PS
@@ -129,6 +137,12 @@ void compute_a(mesh<ro> m, field<rw, rw, ro> a) {
 } // compute_a
 
 flecsi_register_task(compute_a, loc, single);
+
+void sparse(mesh<ro> m, sparse_field<rw, rw, ro> a) {
+
+} // sparse
+
+flecsi_register_task(sparse, loc, single);
 
 void compute_b(mesh<ro> m, field<rw, rw, ro> b) {
   int cnt = 0;
@@ -242,6 +256,21 @@ void specialization_spmd_init(int argc, char ** argv) {
 // User driver.
 //----------------------------------------------------------------------------//
 
+void run_something() {
+  auto mh2 = flecsi_get_client_handle(mesh_t, clients, m);
+  auto ah2 = flecsi_get_handle(mh2, data, A, double, dense, 0);
+  auto bh2 = flecsi_get_handle(mh2, data, B, double, dense, 0);
+  auto ch2 = flecsi_get_handle(mh2, data, C, double, dense, 0);
+
+  flecsi_execute_task(compute_a, single, mh2, ah2);
+  flecsi_execute_task(compute_b, single, mh2, bh2);
+  flecsi_execute_task(init_c, single, mh2, ch2);
+  flecsi_execute_task(compute_c, single, mh2, ah2, bh2, ch2);
+}
+
+#define SIMPLE
+
+#ifdef SIMPLE
 void driver(int argc, char ** argv) {
   printf("start driver\n");
 
@@ -252,9 +281,86 @@ void driver(int argc, char ** argv) {
   auto globh = flecsi_get_handle(mh, data, glob, int, global, 0);
 
   flecsi_execute_task(compute_a, single, mh, ah);
-  flecsi_execute_task(init_c, single, mh, ch);
   flecsi_execute_task(compute_b, single, mh, bh);
 
+  flecsi_execute_task(init_c, single, mh, ch);
+  flecsi_execute_task(compute_c, single, mh, ah, bh, ch);
+
+  flecsi_execute_task(global_task, single, mh, globh);
+
+  printf("end driver\n");
+} // driver
+
+#else
+
+void driver(int argc, char ** argv) {
+  printf("start driver\n");
+
+  auto mh = flecsi_get_client_handle(mesh_t, clients, m);
+  auto ah = flecsi_get_handle(mh, data, A, double, dense, 0);
+  auto bh = flecsi_get_handle(mh, data, B, double, dense, 0);
+  auto ch = flecsi_get_handle(mh, data, C, double, dense, 0);
+  auto globh = flecsi_get_handle(mh, data, glob, int, global, 0);
+
+  bool do_global = true;
+
+  if (do_global)
+    flecsi_execute_task(global_task, single, mh, globh);
+
+  for (int i = 0; i < 3; ++i) {
+    flecsi_execute_task(compute_a, single, mh, ah);
+    flecsi_execute_task(compute_b, single, mh, bh);
+
+    if (i == 2)
+      flecsi_execute_task(init_c, single, mh, ch);
+    else
+      flecsi_execute_task(global_task, single, mh, globh);
+
+    int j = 0;
+    do {
+      flecsi_execute_task(compute_c, single, mh, ah, bh, ch);
+      ++j;
+    } while (j < i);
+  }
+
+  run_something();
+
+  int i = 0;
+  while (i < 3) {
+    flecsi_execute_task(init_c, single, mh, ch);
+    run_something();
+    ++i;
+  }
+
+  switch (i) {
+  case 0:
+    flecsi_execute_task(compute_a, single, mh, ah);
+    break;
+  case 1:
+    flecsi_execute_task(compute_b, single, mh, bh);
+//    break;
+  case 2:
+    if (do_global) {
+      flecsi_execute_task(compute_c, single, mh, ah, bh, ch);
+    } else if (i == 3) {
+      flecsi_execute_task(init_c, single, mh, ch);
+    } else {
+      for (int k = 0; k < 3; ++k) {
+        flecsi_execute_task(global_task, single, mh, globh);
+      }
+    }
+    break;
+  default:
+    flecsi_execute_task(global_task, single, mh, globh);
+  }
+
+  if (do_global)
+    int a = 0;
+  else
+    flecsi_execute_task(compute_c, single, mh, ah, bh, ch);
+
+  if (do_global)
+    run_something();
 
   flecsi_execute_task(compute_c, single, mh, ah, bh, ch);
 
@@ -262,6 +368,9 @@ void driver(int argc, char ** argv) {
 
   printf("end driver\n");
 } // driver
+
+#endif // SIMPLE
+
 
 } // namespace execution
 } // namespace flecsi
